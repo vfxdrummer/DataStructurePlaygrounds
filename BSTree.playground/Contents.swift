@@ -87,18 +87,32 @@ public class BinarySearchTree<T: Comparable> {
     }
   }
   
-  public func printInOrder(node:BinarySearchTree, level:Int) {
-    if (node.left != nil) {
-      printInOrder(node: node.left!, level: level+1)
-    }
+  public func printNode(node:BinarySearchTree, level:Int) {
     let childLabel = (node.isLeftChild || node.isRightChild) ? (node.isLeftChild ? "left" : "right") : "root"
     print("-> (\(node.value) : \(level) \(childLabel)")
-    if (node.right != nil) {
-      printInOrder(node: node.right!, level: level+1)
-    }
+  }
+  
+  public func printInOrder(node:BinarySearchTree, level:Int) {
+    node.left?.printInOrder(node: node.left!, level: level+1)
+    let childLabel = (node.isLeftChild || node.isRightChild) ? (node.isLeftChild ? "left" : "right") : "root"
+    print("-> (\(node.value) : \(level) \(childLabel)")
+    node.right?.printInOrder(node: node.right!, level: level+1)
+  }
+  
+  public func printPreOrder(node:BinarySearchTree, level:Int) {
+    printNode(node:node, level:level)
+    node.left?.printPreOrder(node: node.left!, level: level+1)
+    node.right?.printPreOrder(node: node.right!, level: level+1)
+  }
+  
+  public func printPostOrder(node:BinarySearchTree, level:Int) {
+    node.left?.printPostOrder(node: node.left!, level: level+1)
+    node.right?.printPostOrder(node: node.right!, level: level+1)
+    printNode(node:node, level:level)
   }
   
 }
+
 
 extension BinarySearchTree: CustomStringConvertible {
   public var description: String {
@@ -129,7 +143,12 @@ tree.insert(value: 9)
 tree.insert(value: 1)
 tree.printInOrder(node: tree, level: 0)
 let tree2 = BinarySearchTree<Int>(array: [7, 2, 5, 10, 9, 1])
+print("<---- In Order ---->")
 tree.printInOrder(node: tree2, level: 0)
+print("<---- Pre Order ---->")
+tree.printPreOrder(node: tree2, level: 0)
+print("<---- Post Order ---->")
+tree.printPostOrder(node: tree2, level: 0)
 tree.search(value: 5)
 tree.search(value: 1)
 
