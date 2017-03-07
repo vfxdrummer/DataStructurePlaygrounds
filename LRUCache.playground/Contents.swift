@@ -1,5 +1,3 @@
-//: Playground - noun: a place where people can play
-
 // https://developer.apple.com/reference/swift/dictionary
 // Dictionary minimumCapacity
 //
@@ -128,13 +126,70 @@ class LinkedList<K, V> {
   
 }
 
+class lruCache<K : Hashable, V> : CustomStringConvertible {
+  
+  let capacity: Int
+  var length = 0
+  
+  private let queue: LinkedList<K, V>
+  private var hashtable: [K : Node<K, V>]
+  
+  /**
+   Least Recently Used "LRU" Cache, capacity is the number of elements to keep in the Cache.
+   */
+  init(capacity: Int) {
+    self.capacity = capacity
+    
+    self.queue = LinkedList()
+    self.hashtable = [K : Node<K, V>](minimumCapacity: self.capacity)
+  }
+  
+  subscript(index: K) -> V? {
+    get {
+      if self.hashtable[index] != nil {
+        let node = self.hashtable[index]
+        self.queue.addToHead(node: node!)
+        return (node?.value)!
+      } else {
+        return nil
+      }
+    }
+    set(newValue) {
+      if let node = self.hashtable[index] {
+        node.value = newValue
+        self.queue.addToHead(node: node)
+      } else {
+        let n = Node(key: index, value: newValue)
+        
+        if (self.length > self.capacity) {
+          self.queue.remove(node: self.queue.tail!)
+          hashtable.removeValue(forKey: self.queue.tail!.key)
+        } else {
+          self.length += 1
+        }
+        
+        self.queue.addToHead(node: n)
+        self.hashtable[index] = n
+      }
+    }
+  }
+  
+  var description: String {
+    return "length : \(self.length) capacity : \(self.capacity) display : \(self.queue.display())"
+  }
+}
+
 
 // test creating a node with values
+//
+//
 let n = Node(key: "key1", value: "value1")
 print(n.key)
 print(n.value!)
 
 // test LinkedList
+//
+//
 let l = LinkedList<String, String>()
 print(l.display())
 l.addToHead(node: n)
@@ -166,6 +221,36 @@ l.remove(node: l.tail!)
 print(l.display())
 l.remove(node: l.tail!)
 print(l.display())
+// test lruCache
+//
+//
+var lruC = lruCache<String, String>(capacity: 8)
+print(lruC.description)
+lruC["key1"] = "value1"
+print(lruC.description)
+lruC["key2"] = "value2"
+lruC["key3"] = "value3"
+lruC["key4"] = "value4"
+lruC["key5"] = "value5"
+lruC["key6"] = "value6"
+lruC["key7"] = "value7"
+lruC["key8"] = "value8"
+print(lruC.description)
+// move key3 to head by accessing
+print(lruC["key3"]!)
+print(lruC.description)
+// add new object to overflow key1
+lruC["key9"] = "value9"
+print(lruC.description)
+// overwrite key2 value
+lruC["key2"] = "VALUE2"
+print(lruC.description)
+// overwrite key7 value
+lruC["key7"] = "VALUE7"
+print(lruC.description)
+
+
+
 
 
 
