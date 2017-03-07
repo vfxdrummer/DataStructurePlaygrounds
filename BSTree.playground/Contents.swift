@@ -79,6 +79,17 @@ public class BinarySearchTree<T: Comparable> {
     }
   }
   
+  private func reconnectParentToNode(node: BinarySearchTree?) {
+    if let parent = parent {
+      if isLeftChild {
+        parent.left = node
+      } else {
+        parent.right = node
+      }
+    }
+    node?.parent = parent
+  }
+  
   public convenience init(array: [T]) {
     precondition(array.count > 0)
     self.init(value: array.first!)
@@ -111,6 +122,17 @@ public class BinarySearchTree<T: Comparable> {
     printNode(node:node, level:level)
   }
   
+  public func map(formula: (T) -> T) -> [T] {
+    var a = [T]()
+    if let left = left { a += left.map(formula: formula) }
+    a.append(formula(value))
+    if let right = right { a += right.map(formula: formula) }
+    return a
+  }
+  
+  public func toArray() -> [T] {
+    return map { $0 }
+  }
 }
 
 
