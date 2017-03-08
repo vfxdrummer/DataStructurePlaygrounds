@@ -110,6 +110,19 @@ public class BinarySearchTree<T: Comparable> {
     }
   }
   
+  public func successor() -> BinarySearchTree<T>? {
+    if let right = right {
+      return right.minimum()
+    } else {
+      var node = self
+      while case let parent? = node.parent {
+        if parent.value > value { return parent }
+        node = parent
+      }
+      return nil
+    }
+  }
+  
   private func reconnectParentTo(node: BinarySearchTree?) {
     if let parent = parent {
       if isLeftChild {
@@ -256,17 +269,27 @@ print(tree2.minimum())
 print(tree2.maximum())
 tree.search(value: 5)?.depth()
 tree.printPreOrder(node: tree)
-let n1 = tree.search(value: 1)
-let n2 = tree.search(value: 2)
-n1?.predecessor()
+tree.search(value: 1)?.predecessor()
 tree.search(value: 2)?.predecessor()
 tree.search(value: 5)?.predecessor()
 tree.search(value: 7)?.predecessor()
 tree.search(value: 9)?.predecessor()
 tree.search(value: 10)?.predecessor()
 tree.insert(value: 6)
-tree.search(value: 6)?.predecessor()
-
+tree.search(value: 6)?.successor()
+tree.search(value: 1)?.successor()
+tree.search(value: 2)?.successor()
+tree.search(value: 5)?.successor()
+tree.search(value: 6)?.successor()
+tree.search(value: 7)?.successor()
+tree.search(value: 9)?.successor()
+tree.search(value: 10)?.successor()
+if let node1 = tree.search(1) {
+  tree.isBST(minValue: Int.min, maxValue: Int.max)  // true
+  node1.insert(100)                                 // EVIL!!!
+  tree.search(100)                                  // nil
+  tree.isBST(minValue: Int.min, maxValue: Int.max)  // false
+}
 
 
 
