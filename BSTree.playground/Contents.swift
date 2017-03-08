@@ -14,6 +14,14 @@ public class BinarySearchTree<T: Comparable> {
     self.value = value
   }
   
+  public convenience init(array: [T]) {
+    precondition(array.count > 0)
+    self.init(value: array.first!)
+    for v in array.dropFirst() {
+      insert(value: v)
+    }
+  }
+  
   public var isRoot: Bool {
     return parent == nil
   }
@@ -178,14 +186,6 @@ public class BinarySearchTree<T: Comparable> {
     right = nil
     
     return replacement
-  }
-  
-  public convenience init(array: [T]) {
-    precondition(array.count > 0)
-    self.init(value: array.first!)
-    for v in array.dropFirst() {
-      insert(value: v)
-    }
   }
   
   public func printNode(node:BinarySearchTree) {
