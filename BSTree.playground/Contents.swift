@@ -50,6 +50,24 @@ public class BinarySearchTree<T: Comparable> {
     return (left?.count ?? 0) + 1 + (right?.count ?? 0)
   }
   
+  public func height() -> Int {
+    if isLeaf {
+      return 0
+    } else {
+      return 1 + max(left?.height() ?? 0, right?.height() ?? 0)
+    }
+  }
+  
+  public func depth() -> Int {
+    var node = self
+    var edges = 0
+    while case let parent? = node.parent {
+      node = parent
+      edges += 1
+    }
+    return edges
+  }
+  
   public func insert(value: T) {
     if value < self.value {
       if let left = left {
@@ -79,7 +97,20 @@ public class BinarySearchTree<T: Comparable> {
     }
   }
   
-  private func reconnectParentToNode(node: BinarySearchTree?) {
+  public func predecessor() -> BinarySearchTree<T>? {
+    if let left = left {
+      return left.maximum()
+    } else {
+      var node = self
+      while case let parent? = node.parent {
+        if parent.value < value { return parent }
+        node = parent
+      }
+      return nil
+    }
+  }
+  
+  private func reconnectParentTo(node: BinarySearchTree?) {
     if let parent = parent {
       if isLeftChild {
         parent.left = node
@@ -90,6 +121,52 @@ public class BinarySearchTree<T: Comparable> {
     node?.parent = parent
   }
   
+  public func minimum() -> BinarySearchTree {
+    var node = self
+    while case let next? = node.left {
+      node = next
+    }
+    return node
+  }
+  
+  public func maximum() -> BinarySearchTree {
+    var node = self
+    while case let next? = node.right {
+      node = next
+    }
+    return node
+  }
+  
+  @discardableResult public func remove() -> BinarySearchTree? {
+    let replacement: BinarySearchTree?
+    
+    // Replacement for current node can be either biggest one on the left or
+    // smallest one on the right, whichever is not nil
+    if let right = right {
+      replacement = right.minimum()
+    } else if let left = left {
+      replacement = left.maximum()
+    } else {
+      replacement = nil
+    }
+    
+    replacement?.remove()
+    
+    // Place the replacement on current node's position
+    replacement?.right = right
+    replacement?.left = left
+    right?.parent = replacement
+    left?.parent = replacement
+    reconnectParentTo(node:replacement)
+    
+    // The current node is no longer part of the tree, so clean it up.
+    parent = nil
+    left = nil
+    right = nil
+    
+    return replacement
+  }
+  
   public convenience init(array: [T]) {
     precondition(array.count > 0)
     self.init(value: array.first!)
@@ -98,28 +175,28 @@ public class BinarySearchTree<T: Comparable> {
     }
   }
   
-  public func printNode(node:BinarySearchTree, level:Int) {
+  public func printNode(node:BinarySearchTree) {
     let childLabel = (node.isLeftChild || node.isRightChild) ? (node.isLeftChild ? "left" : "right") : "root"
-    print("-> (\(node.value) : \(level) \(childLabel)")
+    print("-> (\(node.value) : \(node.height()) \(childLabel)")
   }
   
-  public func printInOrder(node:BinarySearchTree, level:Int) {
-    node.left?.printInOrder(node: node.left!, level: level+1)
+  public func printInOrder(node:BinarySearchTree) {
+    node.left?.printInOrder(node: node.left!)
     let childLabel = (node.isLeftChild || node.isRightChild) ? (node.isLeftChild ? "left" : "right") : "root"
-    print("-> (\(node.value) : \(level) \(childLabel)")
-    node.right?.printInOrder(node: node.right!, level: level+1)
+    print("-> (\(node.value) : \(node.height()) \(childLabel)")
+    node.right?.printInOrder(node: node.right!)
   }
   
-  public func printPreOrder(node:BinarySearchTree, level:Int) {
-    printNode(node:node, level:level)
-    node.left?.printPreOrder(node: node.left!, level: level+1)
-    node.right?.printPreOrder(node: node.right!, level: level+1)
+  public func printPreOrder(node:BinarySearchTree) {
+    printNode(node:node)
+    node.left?.printPreOrder(node: node.left!)
+    node.right?.printPreOrder(node: node.right!)
   }
   
-  public func printPostOrder(node:BinarySearchTree, level:Int) {
-    node.left?.printPostOrder(node: node.left!, level: level+1)
-    node.right?.printPostOrder(node: node.right!, level: level+1)
-    printNode(node:node, level:level)
+  public func printPostOrder(node:BinarySearchTree) {
+    node.left?.printPostOrder(node: node.left!)
+    node.right?.printPostOrder(node: node.right!)
+    printNode(node:node)
   }
   
   public func map(formula: (T) -> T) -> [T] {
@@ -163,16 +240,32 @@ tree.insert(value: 5)
 tree.insert(value: 10)
 tree.insert(value: 9)
 tree.insert(value: 1)
-tree.printInOrder(node: tree, level: 0)
+tree.printInOrder(node: tree)
 let tree2 = BinarySearchTree<Int>(array: [7, 2, 5, 10, 9, 1])
 print("<---- In Order ---->")
-tree.printInOrder(node: tree2, level: 0)
+tree.printInOrder(node: tree2)
 print("<---- Pre Order ---->")
-tree.printPreOrder(node: tree2, level: 0)
+tree.printPreOrder(node: tree2)
 print("<---- Post Order ---->")
-tree.printPostOrder(node: tree2, level: 0)
+tree.printPostOrder(node: tree2)
 tree.search(value: 5)
 tree.search(value: 1)
+print(tree.minimum())
+print(tree.maximum())
+print(tree2.minimum())
+print(tree2.maximum())
+tree.search(value: 5)?.depth()
+tree.printPreOrder(node: tree)
+let n1 = tree.search(value: 1)
+let n2 = tree.search(value: 2)
+n1?.predecessor()
+tree.search(value: 2)?.predecessor()
+tree.search(value: 5)?.predecessor()
+tree.search(value: 7)?.predecessor()
+tree.search(value: 9)?.predecessor()
+tree.search(value: 10)?.predecessor()
+tree.insert(value: 6)
+tree.search(value: 6)?.predecessor()
 
 
 
