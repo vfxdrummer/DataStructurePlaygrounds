@@ -284,6 +284,9 @@ tree.search(value: 6)?.successor()
 tree.search(value: 7)?.successor()
 tree.search(value: 9)?.successor()
 tree.search(value: 10)?.successor()
+tree.search(value: 10)!.remove()
+
+
 if let node1 = tree.search(1) {
   tree.isBST(minValue: Int.min, maxValue: Int.max)  // true
   node1.insert(100)                                 // EVIL!!!
