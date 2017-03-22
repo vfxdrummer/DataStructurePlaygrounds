@@ -100,7 +100,6 @@ class Trie {
         return []
       }
     }
-    print("!!! \(node.character)")
     // at last character of trie tree, print all complete words
     for childNode in node.children {
       for word in childNode.getWords(partialWord:"") {
